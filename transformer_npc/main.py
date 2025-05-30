@@ -4,7 +4,7 @@ import time
 import json
 
 class NPCConversationSystem:
-    def __init__(self, tree_file="claude's-tree-of-madness.yaml"):
+    def __init__(self, tree_file="llm-tree.yaml"):
         self.tree = self.load_tree(tree_file)
         self.current_node = self.tree[0]  # Start at the first node
         self.context = []
