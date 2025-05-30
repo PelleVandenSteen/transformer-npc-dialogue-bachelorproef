@@ -1,0 +1,228 @@
+conversations:
+  guard_initial_encounter:
+    - id: start
+      text: "Halt! State your business in this city."
+      speaker: guard
+      mood: stern
+      children:
+        - id: hostile_response
+          text: "Listen here you glorified watchdog, my business is none of your concern and you'll regret threatening me."
+          speaker: player
+          requirements:
+            min_intimidation: 0
+          effects:
+            guard_hostility: +2
+          children:
+            - id: guard_angry
+              text: "Threatening a city guard, are we? You've got some nerve, stranger. Last chance to explain yourself before I call for backup."
+              speaker: guard
+              mood: angry
+              children:
+                - id: player_escalate
+                  text: "Go ahead and call them. I'm not afraid of you or your little friends."
+                  speaker: player
+                  requirements:
+                    min_intimidation: 3
+                  effects:
+                    guard_hostility: +3
+                    combat_initiated: true
+                  children:
+                    - id: combat_start
+                      text: "So be it! Guards! GUARDS!"
+                      speaker: guard
+                      mood: furious
+                      end_state: combat
+                - id: player_backdown
+                  text: "Look, I apologize. I've had a long journey and I'm on edge. Let me explain properly."
+                  speaker: player
+                  effects:
+                    guard_hostility: -1
+                  children:
+                    - id: guard_suspicious
+                      text: "Hmph. Your temper got the better of you, eh? Fine. But I'm watching you closely now. What brings you to our city?"
+                      speaker: guard
+                      mood: suspicious
+                      children:
+                        - id: bribe_attempt
+                          text: "I think you'll find my reasons... financially adequate."
+                          description: "Attempt Bribe (-10 gold)"
+                          speaker: player
+                          requirements:
+                            min_gold: 10
+                          effects:
+                            gold: -10
+                            guard_suspicion: +1
+                          children:
+                            - id: bribe_consideration
+                              text: "Trying to bribe a city guard? Bold move, stranger. Gold does talk, but it doesn't erase my duty."
+                              speaker: guard
+                              mood: conflicted
+                              children:
+                                - id: bribe_accepted
+                                  text: "You know what? My shift ends soon anyway. Be quick about your business and stay out of trouble."
+                                  speaker: guard
+                                  mood: resigned
+                                  effects:
+                                    entry_granted: true
+                                  end_state: entry_granted
+
+        - id: curious_response
+          text: "My business? What kind of business are you expecting exactly?"
+          speaker: player
+          children:
+            - id: business_inquiry_2
+              text: "The kind that doesn't involve trouble for my city. Why do you wish to enter?"
+              speaker: guard
+              mood: professional
+              children:
+                - id: dragon_truth
+                  text: "I bring urgent news for the Jarl about a dragon attack in Old Town."
+                  description: "Tell the truth"
+                  speaker: player
+                  children:
+                    - id: dragon_alarm
+                      text: "A dragon attack?! By the gods... When did this happen? Are there survivors?"
+                      speaker: guard
+                      mood: alarmed
+                      children:
+                        - id: dragon_details
+                          text: "Three days ago. The beast came at dawn. I managed to escape with a handful of others, but the town... it's gone."
+                          speaker: player
+                          children:
+                            - id: guard_urgent
+                              text: "This is dire news indeed. The Jarl must hear of this immediately. Go straight to the keep - I'll send word ahead. And stranger... thank you for bringing this warning."
+                              speaker: guard
+                              mood: grateful
+                              effects:
+                                entry_granted: true
+                                jarl_meeting_arranged: true
+                                reputation: +2
+                              end_state: urgent_entry
+
+                - id: family_lie
+                  text: "My family lives here. I'm just coming home."
+                  description: "Lie about family"
+                  speaker: player
+                  requirements:
+                    min_deception: 1
+                  children:
+                    - id: family_questioned
+                      text: "Your family, eh? What's their name? I know most of the families in this district."
+                      speaker: guard
+                      mood: suspicious
+                      children:
+                        - id: family_elaborate_lie
+                          text: "The Andersons. They live in the merchant quarter. My mother runs a small bakery."
+                          description: "Continue lying"
+                          speaker: player
+                          requirements:
+                            min_deception: 3
+                          children:
+                            - id: lie_believed
+                              text: "Anderson... Anderson... Oh right, the baker's wife! Yes, I know her bread. You have her eyes, now that I look closer. Go on through."
+                              speaker: guard
+                              mood: relieved
+                              effects:
+                                entry_granted: true
+                              end_state: entry_granted
+                            - id: lie_caught
+                              text: "Anderson? There's no baker named Anderson in this city. You're lying to me, stranger. Why?"
+                              speaker: guard
+                              mood: angry
+                              effects:
+                                guard_hostility: +2
+                                guard_suspicion: +3
+                              children:
+                                - id: caught_apologize
+                                  text: "I... I'm sorry. I was desperate. Let me tell you the real reason I'm here."
+                                  speaker: player
+                                  children:
+                                    - id: honest_reasons
+                                      text: "I'm here seeking work. I'm a sellsword looking for employment, and I heard there might be opportunities in the city."
+                                      speaker: player
+                                      children:
+                                        - id: mercenary_response
+                                          text: "A sellsword, eh? We've had some bandit troubles lately. Captain might be interested in hiring some extra muscle. You seem honest enough. Entry granted, but report to the Captain if you're serious about work."
+                                          speaker: guard
+                                          mood: professional
+                                          effects:
+                                            entry_granted: true
+                                            job_opportunity: true
+                                          end_state: entry_granted
+
+                - id: charm_attempt
+                  text: "Come now, surely someone as perceptive as you can see I mean no harm. I'm just a weary traveler."
+                  description: "Use Charm"
+                  speaker: player
+                  requirements:
+                    min_charisma: 2
+                  children:
+                    - id: charm_partial_success
+                      text: "Flattery will only get you so far, but... you do seem harmless enough. Still, I need more than sweet words."
+                      speaker: guard
+                      mood: softened
+                      effects:
+                        guard_disposition: +1
+                      children:
+                        - id: charm_continue
+                          text: "I appreciate your diligence. A guard who takes his duty seriously keeps everyone safe. Perhaps I could buy you an ale after your shift?"
+                          speaker: player
+                          requirements:
+                            min_charisma: 3
+                          children:
+                            - id: guard_pleased
+                              text: "Ha! Now that's more like it. An ale sounds good after standing here all day. Alright, you seem decent enough. What's your real business here?"
+                              speaker: guard
+                              mood: friendly
+                              effects:
+                                guard_disposition: +2
+                              children:
+                                - id: honest_reasons_2
+                                  text: "I'm here seeking work. I'm a sellsword looking for employment."
+                                  speaker: player
+                                  children:
+                                    - id: mercenary_response_2
+                                      text: "A sellsword with manners! That's rare. Captain could use someone like you. Entry granted, friend."
+                                      speaker: guard
+                                      mood: pleased
+                                      effects:
+                                        entry_granted: true
+                                        job_opportunity: true
+                                        reputation: +1
+                                      end_state: entry_granted
+
+        - id: polite_inquiry
+          text: "I'm simply seeking entry to your fair city, good sir. Might I ask what information you require?"
+          speaker: player
+          effects:
+            guard_disposition: +1
+          children:
+            - id: guard_pleased_politeness
+              text: "Now there's proper manners! Refreshing to meet a courteous traveler. I just need to know your purpose for visiting."
+              speaker: guard
+              mood: pleased
+              children:
+                - id: honest_reasons_3
+                  text: "I'm here seeking work. I'm a sellsword looking for employment, and I heard there might be opportunities in the city."
+                  speaker: player
+                  children:
+                    - id: mercenary_response_3
+                      text: "A sellsword, eh? We've had some bandit troubles lately. Captain might be interested in hiring some extra muscle. You seem honest enough. Entry granted, but report to the Captain if you're serious about work."
+                      speaker: guard
+                      mood: professional
+                      effects:
+                        entry_granted: true
+                        job_opportunity: true
+                      end_state: entry_granted
+
+# Game state effects legend:
+# guard_hostility: How aggressive the guard becomes (0-5 scale)
+# guard_disposition: How much the guard likes the player (-3 to +3)
+# guard_suspicion: How suspicious the guard is (0-5 scale)
+# guard_corruption: Tracks if guard accepts bribes
+# entry_granted: Boolean for whether player can enter
+# combat_initiated: Boolean for if fight starts
+# reputation: Player's reputation in the city
+# gold: Player's current gold amount
+# jarl_meeting_arranged: Special flag for dragon quest
+# job_opportunity: Flag for mercenary work availability
