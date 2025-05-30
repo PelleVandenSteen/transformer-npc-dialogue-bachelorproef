@@ -1,6 +1,6 @@
 # NPC Dialogue Transformer – Bachelorproef
 
-Dit project bevat de broncode voor mijn bachelorproef: *Dynamische dialogen voor NPC's: Toepassing van AI voor kleine gameontwikkelaars*.
+Deze repo bevat de finale versie van de code voor mijn bachelorproef: *Dynamische dialogen voor NPC's: Toepassing van AI voor kleine gameontwikkelaars*.
 
 ## Projectstructuur
 - `retrieval_npc/`: retrieval-based implementatie via YAML-boom
