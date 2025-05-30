@@ -4,12 +4,4 @@ Dit project bevat de broncode voor mijn bachelorproef: *Dynamische dialogen voor
 
 ## Projectstructuur
 - `retrieval_npc/`: retrieval-based implementatie via YAML-boom
-- `transformer_npc/`: LLM-gebaseerde NPC-reacties via Mistral + Ollama
-- `assets/`: illustraties, screenshots en diagrammen
-- `tests/`: eenvoudige unittests voor dialooglogica
-
-## Installatie
-1. Clone deze repo
-2. Installeer dependencies:
-   ```bash
-   pip install -r requirements.txt
+- `transformer_npc/`: LLM-gegenereerde tree met NPC-reacties via Mistral + Ollama
