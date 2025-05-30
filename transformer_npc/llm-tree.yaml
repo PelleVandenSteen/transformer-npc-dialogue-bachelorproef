@@ -1,0 +1,737 @@
+conversations:
+  guard_initial_encounter:
+    - id: start
+      text: "Halt! State your business in this city."
+      speaker: guard
+      mood: stern
+      children:
+        - id: hostile_response
+          text: "Listen here you glorified watchdog, my business is none of your concern and you'll regret threatening me."
+          speaker: player
+          requirements:
+            min_intimidation: 0
+          effects:
+            guard_hostility: +2
+          children:
+            - id: guard_angry
+              text: "Threatening a city guard, are we? You've got some nerve, stranger. Last chance to explain yourself before I call for backup."
+              speaker: guard
+              mood: angry
+              children:
+                - id: player_escalate
+                  text: "Go ahead and call them. I'm not afraid of you or your little friends."
+                  speaker: player
+                  requirements:
+                    min_intimidation: 3
+                  effects:
+                    guard_hostility: +3
+                    combat_initiated: true
+                  children:
+                    - id: combat_start
+                      text: "So be it! Guards! GUARDS!"
+                      speaker: guard
+                      mood: furious
+                      end_state: combat
+                
+                - id: player_backdown
+                  text: "Look, I apologize. I've had a long journey and I'm on edge. Let me explain properly."
+                  speaker: player
+                  effects:
+                    guard_hostility: -1
+                  children:
+                    - id: guard_suspicious_after_backdown
+                      text: "Hmph. Your temper got the better of you, eh? Fine. But I'm watching you closely now. What brings you to our city?"
+                      speaker: guard
+                      mood: suspicious
+                      children:
+                        - id: merchant_story
+                          text: "I'm a traveling merchant looking to set up shop for a few days."
+                          speaker: player
+                          children:
+                            - id: merchant_questioning
+                              text: "A merchant with a temper like that? What goods do you trade in?"
+                              speaker: guard
+                              mood: skeptical
+                              children:
+                                - id: weapons_merchant
+                                  text: "I deal in quality weapons and armor. Perhaps your guards could use better equipment?"
+                                  speaker: player
+                                  children:
+                                    - id: weapons_interest
+                                      text: "Weapons, eh? The Captain might be interested. You'll need a permit though. Entry granted, but report to the guard office first."
+                                      speaker: guard
+                                      mood: interested
+                                      effects:
+                                        entry_granted: true
+                                        permit_required: true
+                                      end_state: entry_granted
+                                
+                                - id: general_goods
+                                  text: "Basic supplies - food, tools, travel gear. Nothing dangerous."
+                                  speaker: player
+                                  children:
+                                    - id: general_approval
+                                      text: "We can always use more traders. Market's in the center square. Entry granted."
+                                      speaker: guard
+                                      mood: professional
+                                      effects:
+                                        entry_granted: true
+                                      end_state: entry_granted
+                                
+                                - id: leave_merchant_talk
+                                  text: "Actually, I think I'll try the next town over. This place seems... tense."
+                                  speaker: player
+                                  children:
+                                    - id: merchant_leaves
+                                      text: "Suit yourself. Safe travels."
+                                      speaker: guard
+                                      mood: indifferent
+                                      end_state: player_leaves
+                        
+                        - id: bribe_attempt_after_backdown
+                          text: "Perhaps we can come to a... mutually beneficial arrangement?"
+                          description: "Attempt Bribe (-10 gold)"
+                          speaker: player
+                          requirements:
+                            min_gold: 10
+                          effects:
+                            gold: -10
+                            guard_suspicion: +1
+                          children:
+                            - id: bribe_consideration_suspicious
+                              text: "Trying to bribe a city guard after threatening me? Bold move, stranger. Gold does talk, but it doesn't erase my duty."
+                              speaker: guard
+                              mood: conflicted
+                              children:
+                                - id: bribe_accepted_reluctant
+                                  text: "You know what? My shift ends soon anyway. Be quick about your business and stay out of trouble."
+                                  speaker: guard
+                                  mood: resigned
+                                  effects:
+                                    entry_granted: true
+                                    guard_corruption: +1
+                                  end_state: entry_granted
+                                
+                                - id: bribe_rejected
+                                  text: "No. I won't be bought. State your real business or move along."
+                                  speaker: guard
+                                  children:
+                                    - id: after_bribe_rejection
+                                      text: "Very well. I respect your integrity. I'm here seeking work as a sellsword."
+                                      speaker: player
+                                      children:
+                                        - id: sellsword_after_bribe
+                                          text: "A sellsword who tries bribes? We'll see. Report to the Captain if you're serious about work. Entry granted."
+                                          speaker: guard
+                                          mood: wary
+                                          effects:
+                                            entry_granted: true
+                                            job_opportunity: true
+                                          end_state: entry_granted
+                        
+                        - id: leave_after_backdown
+                          text: "You know what, I think I'll find a more welcoming place."
+                          speaker: player
+                          children:
+                            - id: guard_dismissive
+                              text: "Probably for the best. Move along."
+                              speaker: guard
+                              mood: dismissive
+                              end_state: player_leaves
+
+                - id: leave_after_threat
+                  text: "This isn't worth my time. I'll find another way in."
+                  speaker: player
+                  children:
+                    - id: guard_warning
+                      text: "Smart choice. But I'll be watching for you. Don't try anything foolish."
+                      speaker: guard
+                      mood: threatening
+                      effects:
+                        player_marked: true
+                      end_state: player_leaves
+
+        - id: curious_response
+          text: "My business? What kind of business are you expecting exactly?"
+          speaker: player
+          children:
+            - id: business_inquiry_detailed
+              text: "The kind that doesn't involve trouble for my city. Merchants, pilgrims, workers - all welcome. Thieves, troublemakers, and sellswords looking for fights are not."
+              speaker: guard
+              mood: professional
+              children:
+                - id: dragon_truth
+                  text: "I bring urgent news for the Jarl about a dragon attack in Old Town."
+                  description: "Tell the truth"
+                  speaker: player
+                  children:
+                    - id: dragon_alarm
+                      text: "A dragon attack?! By the gods... When did this happen? Are there survivors?"
+                      speaker: guard
+                      mood: alarmed
+                      children:
+                        - id: dragon_details_full
+                          text: "Three days ago. The beast came at dawn. I managed to escape with a handful of others, but the town... it's gone."
+                          speaker: player
+                          children:
+                            - id: guard_urgent_response
+                              text: "This is dire news indeed. The Jarl must hear of this immediately. Go straight to the keep - I'll send word ahead. And stranger... thank you for bringing this warning."
+                              speaker: guard
+                              mood: grateful
+                              effects:
+                                entry_granted: true
+                                jarl_meeting_arranged: true
+                                reputation: +2
+                              end_state: urgent_entry
+                        
+                        - id: dragon_details_vague
+                          text: "It was... terrible. I don't want to relive the details, but people need to know."
+                          speaker: player
+                          children:
+                            - id: guard_pressing
+                              text: "I understand it's difficult, but the Jarl will need specifics. Can you at least tell me how many were lost?"
+                              speaker: guard
+                              mood: concerned
+                              children:
+                                - id: dragon_numbers
+                                  text: "Most of the town. Maybe fifty people made it out. The dragon... it was massive, black as night."
+                                  speaker: player
+                                  children:
+                                    - id: dragon_details_accepted
+                                      text: "By the gods... I'll escort you to the keep myself. This news cannot wait."
+                                      speaker: guard
+                                      mood: grave
+                                      effects:
+                                        entry_granted: true
+                                        jarl_meeting_arranged: true
+                                        guard_escort: true
+                                        reputation: +3
+                                      end_state: urgent_entry
+                                
+                                - id: too_traumatic
+                                  text: "I... I can't. It's too much. Just please, let me speak to someone in authority."
+                                  speaker: player
+                                  children:
+                                    - id: guard_sympathetic
+                                      text: "I understand. Trauma from such events... Go to the keep. Tell them Sergeant Marcus sent you. They'll listen."
+                                      speaker: guard
+                                      mood: sympathetic
+                                      effects:
+                                        entry_granted: true
+                                        guard_recommendation: true
+                                        reputation: +1
+                                      end_state: entry_granted
+                        
+                        - id: leave_dragon_topic
+                          text: "Actually, I'm not ready to speak about this yet. I need time to process."
+                          speaker: player
+                          children:
+                            - id: guard_understanding
+                              text: "I can see this weighs heavily on you. Take the time you need, but please - when you're ready, this news is important."
+                              speaker: guard
+                              mood: understanding
+                              effects:
+                                entry_granted: true
+                              end_state: entry_granted
+
+                - id: family_lie
+                  text: "My family lives here. I'm just coming home."
+                  description: "Lie about family"
+                  speaker: player
+                  requirements:
+                    min_deception: 1
+                  children:
+                    - id: family_questioned
+                      text: "Your family, eh? What's their name? I know most of the families in this district."
+                      speaker: guard
+                      mood: suspicious
+                      children:
+                        - id: family_elaborate_lie
+                          text: "The Andersons. They live in the merchant quarter. My mother runs a small bakery."
+                          description: "Continue lying"
+                          speaker: player
+                          requirements:
+                            min_deception: 3
+                          children:
+                            - id: lie_believed
+                              text: "Anderson... Anderson... Oh right, the baker's wife! Yes, I know her bread. You have her eyes, now that I look closer. Go on through."
+                              speaker: guard
+                              mood: relieved
+                              effects:
+                                entry_granted: true
+                              end_state: entry_granted
+                            
+                            - id: lie_caught
+                              text: "Anderson? There's no baker named Anderson in this city. You're lying to me, stranger. Why?"
+                              speaker: guard
+                              mood: angry
+                              effects:
+                                guard_hostility: +2
+                                guard_suspicion: +3
+                              children:
+                                - id: caught_apologize
+                                  text: "I... I'm sorry. I was desperate. Let me tell you the real reason I'm here."
+                                  speaker: player
+                                  children:
+                                    - id: honest_after_lie
+                                      text: "I'm here seeking work. I'm a sellsword looking for employment, and I heard there might be opportunities in the city."
+                                      speaker: player
+                                      children:
+                                        - id: mercenary_response_after_lie
+                                          text: "A sellsword who lies about family? That's low. But we do need fighters. Report to the Captain, but I'll be watching you."
+                                          speaker: guard
+                                          mood: disapproving
+                                          effects:
+                                            entry_granted: true
+                                            job_opportunity: true
+                                            reputation: -1
+                                          end_state: entry_granted
+                                
+                                - id: double_down_lie
+                                  text: "I'm not lying! Maybe you don't know every family as well as you think."
+                                  speaker: player
+                                  requirements:
+                                    min_deception: 4
+                                  children:
+                                    - id: lie_anger
+                                      text: "Don't insult my knowledge of this city! I've been guarding these gates for ten years. Last chance - truth, or you turn around."
+                                      speaker: guard
+                                      mood: furious
+                                      effects:
+                                        guard_hostility: +3
+                                      children:
+                                        - id: final_truth
+                                          text: "Fine! I'm a refugee from Old Town. Dragon attack. I have nowhere else to go."
+                                          speaker: player
+                                          children:
+                                            - id: refugee_sympathy
+                                              text: "Old Town? Dragon attack?! Why didn't you say so from the start? Of course you can enter. We'll find you shelter."
+                                              speaker: guard
+                                              mood: ashamed
+                                              effects:
+                                                entry_granted: true
+                                                shelter_provided: true
+                                                reputation: +1
+                                              end_state: entry_granted
+                                        
+                                        - id: leave_after_ultimatum
+                                          text: "Forget it. I'll try elsewhere."
+                                          speaker: player
+                                          children:
+                                            - id: guard_final_warning
+                                              text: "Good riddance. And don't come back with more lies."
+                                              speaker: guard
+                                              mood: dismissive
+                                              end_state: player_leaves
+                        
+                        - id: admit_lie_immediately
+                          text: "You're right, I lied. I don't have family here. I'm sorry."
+                          speaker: player
+                          children:
+                            - id: guard_appreciate_honesty
+                              text: "At least you're honest now. Why the lie? What's your real story?"
+                              speaker: guard
+                              mood: stern_but_fair
+                              effects:
+                                guard_suspicion: -1
+                              children:
+                                - id: refugee_truth
+                                  text: "I'm a refugee from Old Town. Dragon destroyed everything. I need somewhere safe."
+                                  speaker: player
+                                  children:
+                                    - id: refugee_accepted
+                                      text: "A refugee? Why didn't you say so? We have procedures for displaced people. Entry granted - report to the refugee assistance office."
+                                      speaker: guard
+                                      mood: helpful
+                                      effects:
+                                        entry_granted: true
+                                        refugee_status: true
+                                      end_state: entry_granted
+                                
+                                - id: work_seeker_truth
+                                  text: "I'm seeking work. I heard there might be opportunities for someone with my skills."
+                                  speaker: player
+                                  children:
+                                    - id: work_inquiry
+                                      text: "What kind of work? We get all types here."
+                                      speaker: guard
+                                      mood: professional
+                                      children:
+                                        - id: mercenary_work
+                                          text: "Fighting work. I'm handy with a sword."
+                                          speaker: player
+                                          children:
+                                            - id: mercenary_opportunity
+                                              text: "Could use more fighters. Bandit troubles lately. Report to Captain Hayes if you're serious. Entry granted."
+                                              speaker: guard
+                                              mood: interested
+                                              effects:
+                                                entry_granted: true
+                                                job_opportunity: true
+                                              end_state: entry_granted
+                                        
+                                        - id: crafting_work
+                                          text: "I'm skilled in crafting and repair work."
+                                          speaker: player
+                                          children:
+                                            - id: crafting_opportunity
+                                              text: "Always need good craftsmen. Head to the artisan quarter. Ask for Master Willem. Entry granted."
+                                              speaker: guard
+                                              mood: helpful
+                                              effects:
+                                                entry_granted: true
+                                                crafting_opportunity: true
+                                              end_state: entry_granted
+                        
+                        - id: leave_family_questioning
+                          text: "This interrogation is getting uncomfortable. I think I'll try another gate."
+                          speaker: player
+                          children:
+                            - id: guard_suspicious_farewell
+                              text: "Running from questions, eh? I'll inform the other gates about you."
+                              speaker: guard
+                              mood: suspicious
+                              effects:
+                                other_gates_warned: true
+                              end_state: player_leaves
+
+                - id: charm_attempt
+                  text: "Come now, surely someone as perceptive as you can see I mean no harm. I'm just a weary traveler."
+                  description: "Use Charm"
+                  speaker: player
+                  requirements:
+                    min_charisma: 2
+                  children:
+                    - id: charm_partial_success
+                      text: "Flattery will only get you so far, but... you do seem harmless enough. Still, I need more than sweet words."
+                      speaker: guard
+                      mood: softened
+                      effects:
+                        guard_disposition: +1
+                      children:
+                        - id: charm_continue
+                          text: "I appreciate your diligence. A guard who takes his duty seriously keeps everyone safe. Perhaps I could buy you an ale after your shift?"
+                          speaker: player
+                          requirements:
+                            min_charisma: 3
+                          children:
+                            - id: guard_pleased
+                              text: "Ha! Now that's more like it. An ale sounds good after standing here all day. Alright, you seem decent enough. What's your real business here?"
+                              speaker: guard
+                              mood: friendly
+                              effects:
+                                guard_disposition: +2
+                              children:
+                                - id: honest_reasons_after_charm
+                                  text: "I'm here seeking work. I'm a sellsword looking for employment."
+                                  speaker: player
+                                  children:
+                                    - id: mercenary_response_charmed
+                                      text: "A sellsword with manners! That's rare. Captain could use someone like you. Entry granted, friend."
+                                      speaker: guard
+                                      mood: pleased
+                                      effects:
+                                        entry_granted: true
+                                        job_opportunity: true
+                                        reputation: +1
+                                      end_state: entry_granted
+                                
+                                - id: pilgrimage_claim
+                                  text: "I'm on a pilgrimage to the Temple of Light in your city."
+                                  speaker: player
+                                  children:
+                                    - id: pilgrimage_accepted
+                                      text: "A pilgrim! The temple always welcomes faithful visitors. Entry granted. May your prayers be answered."
+                                      speaker: guard
+                                      mood: respectful
+                                      effects:
+                                        entry_granted: true
+                                        temple_access: true
+                                      end_state: entry_granted
+                        
+                        - id: charm_insufficient
+                          text: "You're kind, but I still need to know why you're here."
+                          speaker: guard
+                          requirements:
+                            max_charisma: 2
+                          children:
+                            - id: guard_persistent
+                              text: "Nice try with the charm, but I still need answers. What brings you to our city?"
+                              speaker: guard
+                              mood: amused_but_firm
+                              children:
+                                - id: simple_visitor
+                                  text: "Just passing through. Need supplies and maybe a room for the night."
+                                  speaker: player
+                                  children:
+                                    - id: visitor_accepted
+                                      text: "Fair enough. Inn's on the main street, market's in the square. Entry granted."
+                                      speaker: guard
+                                      mood: professional
+                                      effects:
+                                        entry_granted: true
+                                      end_state: entry_granted
+                                
+                                - id: leave_after_charm_fail
+                                  text: "You know what, I'll try my luck at the next town."
+                                  speaker: player
+                                  children:
+                                    - id: charm_farewell
+                                      text: "Safe travels then. Maybe next time lead with your purpose instead of flattery."
+                                      speaker: guard
+                                      mood: amused
+                                      end_state: player_leaves
+
+                - id: intimidate_guard
+                  text: "Look, I don't have time for this questioning. Just let me through."
+                  description: "Attempt Intimidation"
+                  speaker: player
+                  requirements:
+                    min_intimidation: 2
+                  children:
+                    - id: intimidation_backfire
+                      text: "Threatening tone won't work on me, stranger. I've dealt with bigger threats than you. Answer the question or move along."
+                      speaker: guard
+                      mood: stern
+                      effects:
+                        guard_hostility: +1
+                      children:
+                        - id: back_down_intimidation
+                          text: "You're right, I apologize. I'm just tired from traveling. I'm seeking work in the city."
+                          speaker: player
+                          children:
+                            - id: work_after_intimidation
+                              text: "Better. What kind of work? We might have something."
+                              speaker: guard
+                              mood: professional
+                              children:
+                                - id: any_work
+                                  text: "Anything honest. I'm not picky."
+                                  speaker: player
+                                  children:
+                                    - id: general_work_offer
+                                      text: "Docks always need laborers. Or try the merchant quarter. Entry granted."
+                                      speaker: guard
+                                      mood: helpful
+                                      effects:
+                                        entry_granted: true
+                                        work_opportunities: true
+                                      end_state: entry_granted
+                        
+                        - id: leave_after_intimidation_fail
+                          text: "Fine. This city doesn't seem worth the trouble anyway."
+                          speaker: player
+                          children:
+                            - id: intimidation_farewell
+                              text: "Good riddance. We don't need troublemakers here."
+                              speaker: guard
+                              mood: dismissive
+                              end_state: player_leaves
+
+                - id: leave_conversation
+                  text: "You know what, I think I'll try elsewhere. Good day."
+                  speaker: player
+                  children:
+                    - id: polite_farewell
+                      text: "Safe travels, stranger. Next city might be more to your liking."
+                      speaker: guard
+                      mood: neutral
+                      end_state: player_leaves
+
+        - id: polite_inquiry
+          text: "I'm simply seeking entry to your fair city, good sir. Might I ask what information you require?"
+          speaker: player
+          effects:
+            guard_disposition: +1
+          children:
+            - id: guard_pleased_politeness
+              text: "Now there's proper manners! Refreshing to meet a courteous traveler. I just need to know your purpose for visiting."
+              speaker: guard
+              mood: pleased
+              children:
+                - id: honest_sellsword
+                  text: "I'm here seeking work. I'm a sellsword looking for employment, and I heard there might be opportunities in the city."
+                  speaker: player
+                  children:
+                    - id: mercenary_response_polite
+                      text: "A sellsword, eh? We've had some bandit troubles lately. Captain might be interested in hiring some extra muscle. You seem honest enough. Entry granted, but report to the Captain if you're serious about work."
+                      speaker: guard
+                      mood: professional
+                      effects:
+                        entry_granted: true
+                        job_opportunity: true
+                      end_state: entry_granted
+                
+                - id: traveling_merchant_polite
+                  text: "I'm a traveling merchant hoping to do some business in your fine city."
+                  speaker: player
+                  children:
+                    - id: merchant_welcome
+                      text: "Excellent! We always welcome honest traders. You'll need to register with the merchant's guild. Market square is straight ahead. Entry granted."
+                      speaker: guard
+                      mood: welcoming
+                      effects:
+                        entry_granted: true
+                        merchant_registration_required: true
+                      end_state: entry_granted
+                
+                - id: scholar_visitor
+                  text: "I'm a scholar interested in your city's library and historical records."
+                  speaker: player
+                  children:
+                    - id: scholar_welcome
+                      text: "A scholar! How wonderful. Master Aldric at the Great Library will be delighted to meet you. Entry granted."
+                      speaker: guard
+                      mood: impressed
+                      effects:
+                        entry_granted: true
+                        library_introduction: true
+                        reputation: +1
+                      end_state: entry_granted
+                
+                - id: family_visit_polite
+                  text: "I'm here to visit family. Haven't seen them in quite some time."
+                  speaker: player
+                  children:
+                    - id: family_inquiry_polite
+                      text: "Family visits are always heartwarming. What's their name? I might know them."
+                      speaker: guard
+                      mood: friendly
+                      children:
+                        - id: honest_family_name
+                          text: "The Blackwood family. They run a small inn near the eastern district."
+                          speaker: player
+                          children:
+                            - id: family_recognized
+                              text: "Oh, the Blackwoods! Good people. Martha makes the best stew in the city. They'll be happy to see you. Entry granted."
+                              speaker: guard
+                              mood: pleased
+                              effects:
+                                entry_granted: true
+                                family_connection: true
+                              end_state: entry_granted
+                        
+                        - id: vague_family
+                          text: "Distant relatives. I'm not sure they'd remember me, it's been so long."
+                          speaker: player
+                          children:
+                            - id: family_understanding
+                              text: "Family reunions can be awkward after long separations. Well, I hope it goes well. Entry granted."
+                              speaker: guard
+                              mood: understanding
+                              effects:
+                                entry_granted: true
+                              end_state: entry_granted
+                        
+                        - id: leave_family_topic
+                          text: "Actually, I'd prefer to keep family matters private."
+                          speaker: player
+                          children:
+                            - id: privacy_respected
+                              text: "Of course, I understand. Family business is personal. Entry granted."
+                              speaker: guard
+                              mood: respectful
+                              effects:
+                                entry_granted: true
+                              end_state: entry_granted
+                
+                - id: leave_polite_conversation
+                  text: "Thank you for your time, but I think I'll continue my journey elsewhere."
+                  speaker: player
+                  children:
+                    - id: polite_guard_farewell
+                      text: "Your courtesy is appreciated, traveler. May your journey be safe and prosperous."
+                      speaker: guard
+                      mood: respectful
+                      end_state: player_leaves
+
+        - id: direct_bribe
+          text: "I'm sure a hardworking guard like yourself could use some extra coin for your troubles."
+          description: "Attempt Direct Bribe (-15 gold)"
+          speaker: player
+          requirements:
+            min_gold: 15
+          effects:
+            gold: -15
+          children:
+            - id: bribe_consideration_direct
+              text: "That's... quite forward of you. I appreciate the gesture, but I can't just let people through without knowing their business."
+              speaker: guard
+              mood: conflicted
+              effects:
+                guard_corruption: +1
+              children:
+                - id: bribe_plus_story
+                  text: "Of course, I understand your position. I'm a merchant trader, just looking to do some honest business."
+                  speaker: player
+                  children:
+                    - id: bribe_accepted_merchant
+                      text: "A merchant, eh? Well, we do need more trade. Your... generosity... shows good faith. Entry granted."
+                      speaker: guard
+                      mood: resigned
+                      effects:
+                        entry_granted: true
+                        guard_corruption: +2
+                      end_state: entry_granted
+                
+                - id: bribe_rejected_but_kind
+                  text: "I appreciate the offer, but I can't accept. However, you seem like decent folk. What brings you here?"
+                  speaker: guard
+                  children:
+                    - id: after_rejected_bribe
+                      text: "I respect your integrity. I'm seeking honest work - perhaps as a city guard myself?"
+                      speaker: player
+                      children:
+                        - id: guard_recruitment
+                          text: "Ha! Someone who offers bribes wanting to be a guard? That's rich. But... we are short-staffed. Report to Captain Hayes. Entry granted."
+                          speaker: guard
+                          mood: amused
+                          effects:
+                            entry_granted: true
+                            guard_job_opportunity: true
+                          end_state: entry_granted
+                
+                - id: leave_after_bribe_attempt
+                  text: "I understand. Perhaps I should try a different approach elsewhere."
+                  speaker: player
+                  children:
+                    - id: bribe_farewell
+                      text: "Probably for the best. Not all guards are as understanding as I am."
+                      speaker: guard
+                      mood: warning
+                      end_state: player_leaves
+
+# Universal leave option that can be added to any node
+        - id: universal_leave
+          text: "Actually, I've changed my mind. I'll be on my way."
+          speaker: player
+          children:
+            - id: guard_neutral_farewell
+              text: "Safe travels then."
+              speaker: guard
+              mood: neutral
+              end_state: player_leaves
+
+# Game state effects legend:
+# guard_hostility: How aggressive the guard becomes (0-5 scale)
+# guard_disposition: How much the guard likes the player (-3 to +3)
+# guard_suspicion: How suspicious the guard is (0-5 scale)
+# guard_corruption: Tracks if guard accepts bribes
+# entry_granted: Boolean for whether player can enter
+# combat_initiated: Boolean for if fight starts
+# reputation: Player's reputation in the city
+# gold: Player's current gold amount
+# jarl_meeting_arranged: Special flag for dragon quest
+# job_opportunity: Flag for mercenary work availability
+# refugee_status: Player recognized as refugee
+# shelter_provided: City provides shelter
+# temple_access: Access to temple granted
+# family_connection: Player has family in city
+# merchant_registration_required: Must register as merchant
+# library_introduction: Introduction to librarian arranged
+# crafting_opportunity: Crafting work available
+# work_opportunities: General work available
+# other_gates_warned: Other city gates warned about player
+# player_marked: Guard remembers player negatively
+# guard_escort: Guard personally escorts player
+# guard_recommendation: Guard recommends player to authorities
